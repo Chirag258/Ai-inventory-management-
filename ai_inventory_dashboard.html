@@ -1,0 +1,348 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.db{padding:1.5rem 1rem;max-width:1100px}
+.hdr{display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:0.5px solid var(--color-border-tertiary)}
+.hdr-icon{width:36px;height:36px;background:#185FA5;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.hdr h1{font-size:18px;font-weight:500;color:var(--color-text-primary)}
+.hdr p{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.tabs{display:flex;gap:6px;margin-bottom:1.5rem;flex-wrap:wrap}
+.tab{padding:6px 14px;font-size:13px;font-weight:400;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);cursor:pointer;background:var(--color-background-primary);color:var(--color-text-secondary);transition:all .15s}
+.tab.active{background:#185FA5;color:#fff;border-color:#185FA5}
+.panel{display:none}.panel.active{display:block}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:1.5rem}
+.kpi{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px}
+.kpi-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.kpi-val{font-size:22px;font-weight:500;color:var(--color-text-primary);line-height:1}
+.kpi-sub{font-size:11px;color:var(--color-text-secondary);margin-top:4px}
+.kpi-val.danger{color:#A32D2D}.kpi-val.success{color:#3B6D11}.kpi-val.warn{color:#854F0B}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.chart-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px}
+.chart-card.full{grid-column:1/-1}
+.chart-title{font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:10px;text-transform:uppercase;letter-spacing:.4px}
+.chart-wrap{position:relative;width:100%}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;font-weight:500;font-size:11px;color:var(--color-text-secondary);padding:6px 8px;border-bottom:0.5px solid var(--color-border-tertiary);text-transform:uppercase;letter-spacing:.3px}
+.tbl td{padding:7px 8px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.badge.critical{background:#FCEBEB;color:#791F1F}
+.badge.high{background:#FAEEDA;color:#633806}
+.badge.medium{background:#E6F1FB;color:#0C447C}
+.badge.low{background:#EAF3DE;color:#27500A}
+.badge.low-stock{background:#FAEEDA;color:#633806}
+.badge.optimal{background:#EAF3DE;color:#27500A}
+.badge.overstocked{background:#E6F1FB;color:#0C447C}
+.badge.out{background:#FCEBEB;color:#791F1F}
+.badge.a{background:#E1F5EE;color:#085041}
+.badge.b{background:#E6F1FB;color:#0C447C}
+.badge.c{background:#F1EFE8;color:#444441}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px;font-size:11px;color:var(--color-text-secondary)}
+.leg-dot{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:4px}
+@media(max-width:600px){.chart-row{grid-template-columns:1fr}.chart-card.full{grid-column:auto}}
+</style>
+
+<div class="db">
+<div class="hdr">
+  <div class="hdr-icon">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1.5" fill="white" opacity=".9"/><rect x="11" y="2" width="7" height="7" rx="1.5" fill="white" opacity=".6"/><rect x="2" y="11" width="7" height="7" rx="1.5" fill="white" opacity=".6"/><rect x="11" y="11" width="7" height="7" rx="1.5" fill="white" opacity=".9"/></svg>
+  </div>
+  <div>
+    <h1>AI Inventory & Demand Forecasting</h1>
+    <p>ARIMA(2,1,1) model — 2 years training data (Jan 2023 – Dec 2024) — 30-day forecast horizon</p>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showPanel('overview')">Overview</button>
+  <button class="tab" onclick="showPanel('forecast')">Demand Forecast</button>
+  <button class="tab" onclick="showPanel('inventory')">Inventory Status</button>
+  <button class="tab" onclick="showPanel('reorder')">Reorder Alerts</button>
+  <button class="tab" onclick="showPanel('model')">Model Performance</button>
+</div>
+
+<!-- OVERVIEW -->
+<div id="panel-overview" class="panel active">
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-label">Total Revenue</div><div class="kpi-val">₹61.2 Cr</div><div class="kpi-sub">Jan 2023 – Dec 2024</div></div>
+    <div class="kpi"><div class="kpi-label">Units Sold</div><div class="kpi-val">1,82,957</div><div class="kpi-sub">All items combined</div></div>
+    <div class="kpi"><div class="kpi-label">30-Day Forecast</div><div class="kpi-val success">11,473</div><div class="kpi-sub">ARIMA projected units</div></div>
+    <div class="kpi"><div class="kpi-label">Reorder Needed</div><div class="kpi-val warn">8</div><div class="kpi-sub">Items below threshold</div></div>
+    <div class="kpi"><div class="kpi-label">Avg Profit Margin</div><div class="kpi-val">35.9%</div><div class="kpi-sub">Across all SKUs</div></div>
+    <div class="kpi"><div class="kpi-label">Total SKUs</div><div class="kpi-val">15</div><div class="kpi-sub">5 categories</div></div>
+  </div>
+
+  <div class="chart-row">
+    <div class="chart-card full">
+      <div class="chart-title">Monthly Revenue Trend — 2023 vs 2024</div>
+      <div class="legend">
+        <span><span class="leg-dot" style="background:#185FA5"></span>2023</span>
+        <span><span class="leg-dot" style="background:#1D9E75"></span>2024</span>
+      </div>
+      <div class="chart-wrap" style="height:220px"><canvas id="c-rev" role="img" aria-label="Monthly revenue trend 2023 and 2024">Revenue grew through year-end peaks.</canvas></div>
+    </div>
+  </div>
+  <div class="chart-row">
+    <div class="chart-card">
+      <div class="chart-title">Revenue by Category</div>
+      <div class="chart-wrap" style="height:200px"><canvas id="c-cat" role="img" aria-label="Revenue breakdown by product category">Electronics leads, followed by Furniture.</canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Sales by Season</div>
+      <div class="chart-wrap" style="height:200px"><canvas id="c-seas" role="img" aria-label="Units sold per season">Winter peaks due to holiday demand.</canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- FORECAST -->
+<div id="panel-forecast" class="panel">
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-label">Model</div><div class="kpi-val" style="font-size:16px">ARIMA(2,1,1)</div><div class="kpi-sub">Seasonal adjusted</div></div>
+    <div class="kpi"><div class="kpi-label">Forecast Window</div><div class="kpi-val" style="font-size:16px">30 Days</div><div class="kpi-sub">Jan 1 – Jan 30, 2025</div></div>
+    <div class="kpi"><div class="kpi-label">Total Forecasted</div><div class="kpi-val success">11,473</div><div class="kpi-sub">All items</div></div>
+    <div class="kpi"><div class="kpi-label">Confidence Band</div><div class="kpi-val">±20%</div><div class="kpi-sub">95% interval</div></div>
+  </div>
+  <div class="chart-row">
+    <div class="chart-card full">
+      <div class="chart-title">30-Day Demand Forecast by Item (ARIMA seasonal-adjusted)</div>
+      <div class="legend">
+        <span><span class="leg-dot" style="background:#185FA5"></span>Forecast units</span>
+        <span><span class="leg-dot" style="background:#B5D4F4"></span>Confidence band</span>
+      </div>
+      <div class="chart-wrap" style="height:280px"><canvas id="c-f30" role="img" aria-label="30-day ARIMA demand forecast per item">Wireless Mouse leads forecasted demand.</canvas></div>
+    </div>
+  </div>
+  <div class="chart-row">
+    <div class="chart-card full">
+      <div class="chart-title">Historical vs Forecast — Top Items Monthly Qty</div>
+      <div class="chart-wrap" style="height:220px"><canvas id="c-hist" role="img" aria-label="Historical and forecasted monthly quantity">Shows seasonal pattern across 2023-2024.</canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- INVENTORY -->
+<div id="panel-inventory" class="panel">
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-label">Optimal</div><div class="kpi-val success">7</div></div>
+    <div class="kpi"><div class="kpi-label">Low Stock</div><div class="kpi-val warn">5</div></div>
+    <div class="kpi"><div class="kpi-label">Overstocked</div><div class="kpi-val" style="color:#185FA5">3</div></div>
+    <div class="kpi"><div class="kpi-label">Out of Stock</div><div class="kpi-val danger">0</div></div>
+  </div>
+  <div class="chart-row">
+    <div class="chart-card">
+      <div class="chart-title">Stock Status Distribution</div>
+      <div class="chart-wrap" style="height:200px"><canvas id="c-stock" role="img" aria-label="Stock status distribution donut chart">Majority of items are in optimal status.</canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">ABC Classification</div>
+      <div class="chart-wrap" style="height:200px"><canvas id="c-abc" role="img" aria-label="ABC class distribution">A-class items are highest value movers.</canvas></div>
+    </div>
+  </div>
+  <div class="chart-card full" style="margin-top:0">
+    <div class="chart-title">Inventory Details</div>
+    <div style="overflow-x:auto">
+    <table class="tbl">
+      <thead><tr><th>Item</th><th>Category</th><th>Stock</th><th>Status</th><th>Sale Price</th><th>Margin %</th><th>ABC</th></tr></thead>
+      <tbody id="inv-tbody"></tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- REORDER -->
+<div id="panel-reorder" class="panel">
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-label">Critical</div><div class="kpi-val danger">0</div></div>
+    <div class="kpi"><div class="kpi-label">High Priority</div><div class="kpi-val warn">3</div></div>
+    <div class="kpi"><div class="kpi-label">Medium</div><div class="kpi-val" style="color:#185FA5">5</div></div>
+    <div class="kpi"><div class="kpi-label">Low / OK</div><div class="kpi-val success">7</div></div>
+  </div>
+  <div class="chart-card full" style="margin-bottom:14px">
+    <div class="chart-title">Reorder Recommendations</div>
+    <div style="overflow-x:auto">
+    <table class="tbl">
+      <thead><tr><th>Item</th><th>Current Stock</th><th>Reorder Level</th><th>30D Forecast</th><th>Stockout (days)</th><th>Urgency</th><th>Lost Revenue Risk</th></tr></thead>
+      <tbody id="reorder-tbody"></tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODEL -->
+<div id="panel-model" class="panel">
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-label">Algorithm</div><div class="kpi-val" style="font-size:15px">ARIMA(2,1,1)</div><div class="kpi-sub">AutoRegressive Integrated Moving Average</div></div>
+    <div class="kpi"><div class="kpi-label">Differencing (d)</div><div class="kpi-val">1</div><div class="kpi-sub">Stationarity order</div></div>
+    <div class="kpi"><div class="kpi-label">AR Order (p)</div><div class="kpi-val">2</div><div class="kpi-sub">Lag terms</div></div>
+    <div class="kpi"><div class="kpi-label">MA Order (q)</div><div class="kpi-val">1</div><div class="kpi-sub">Moving average terms</div></div>
+  </div>
+  <div class="chart-row">
+    <div class="chart-card full">
+      <div class="chart-title">RMSE by Item (lower is better)</div>
+      <div class="chart-wrap" style="height:260px"><canvas id="c-rmse" role="img" aria-label="RMSE per item model performance">Model error metrics across all 15 items.</canvas></div>
+    </div>
+  </div>
+  <div class="chart-card full">
+    <div class="chart-title">Model Statistics per Item</div>
+    <div style="overflow-x:auto">
+    <table class="tbl">
+      <thead><tr><th>Item</th><th>Model</th><th>Avg Daily Demand</th><th>RMSE</th><th>30D Forecast</th></tr></thead>
+      <tbody id="model-tbody"></tbody>
+    </table>
+    </div>
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const D = {
+  items:['Wireless Mouse','Mechanical Keyboard','USB-C Hub','Monitor Stand','Laptop Cooling Pad','Ergonomic Chair','Desk Lamp LED','Webcam HD','Noise Cancelling Headphones','Portable SSD 1TB','Whiteboard Marker Set','A4 Paper Ream','Stapler Heavy Duty','Coffee Mug Thermal','Standing Desk Converter'],
+  forecast30:[1120,752,1004,950,691,765,578,858,748,900,422,792,693,455,746],
+  rmse:[8.2,7.1,7.8,8.0,6.9,7.3,6.5,7.6,7.2,7.9,5.8,6.1,6.3,5.5,7.1],
+  meanDemand:[37.4,25.1,33.5,31.7,23.0,25.5,19.3,28.6,24.9,30.0,14.1,26.4,23.1,15.2,24.9],
+  months:['Jan 23','Feb 23','Mar 23','Apr 23','May 23','Jun 23','Jul 23','Aug 23','Sep 23','Oct 23','Nov 23','Dec 23','Jan 24','Feb 24','Mar 24','Apr 24','May 24','Jun 24','Jul 24','Aug 24','Sep 24','Oct 24','Nov 24','Dec 24'],
+  rev2023:[17878790,14956019,20681324,21170764,22957441,24500000,25800000,27100000,29400000,28100000,38700000,49000000],
+  rev2024:[19500000,16400000,22700000,23300000,25200000,26900000,28300000,29800000,32300000,30900000,42500000,53900000],
+  catLabels:['Electronics','Furniture','Lighting','Stationery','Kitchen'],
+  catVals:[308928400,272222600,13170840,10420300,7589253],
+  seasLabels:['Autumn','Spring','Summer','Winter'],
+  seasVals:[44300,43100,43800,51757],
+  invTable:[
+    ['Wireless Mouse','Electronics',342,'Optimal',899,36.2,'A'],
+    ['Mechanical Keyboard','Electronics',78,'Low Stock',3499,38.1,'A'],
+    ['USB-C Hub','Electronics',215,'Optimal',1299,34.5,'B'],
+    ['Monitor Stand','Furniture',421,'Overstocked',1599,33.8,'B'],
+    ['Laptop Cooling Pad','Electronics',55,'Low Stock',799,32.4,'B'],
+    ['Ergonomic Chair','Furniture',189,'Optimal',12999,40.1,'A'],
+    ['Desk Lamp LED','Lighting',310,'Optimal',1199,35.6,'B'],
+    ['Webcam HD','Electronics',62,'Low Stock',3999,37.2,'A'],
+    ['Noise Cancelling Headphones','Electronics',480,'Overstocked',8499,41.3,'A'],
+    ['Portable SSD 1TB','Electronics',95,'Optimal',6999,39.8,'A'],
+    ['Whiteboard Marker Set','Stationery',28,'Low Stock',149,28.1,'C'],
+    ['A4 Paper Ream','Stationery',620,'Overstocked',299,25.4,'C'],
+    ['Stapler Heavy Duty','Stationery',145,'Optimal',499,29.6,'C'],
+    ['Coffee Mug Thermal','Kitchen',33,'Low Stock',699,31.2,'B'],
+    ['Standing Desk Converter','Furniture',270,'Optimal',7999,38.7,'A'],
+  ],
+  reorderTable:[
+    ['Mechanical Keyboard',78,80,752,3.1,'HIGH',500000],
+    ['Laptop Cooling Pad',55,60,691,2.4,'HIGH',250000],
+    ['Webcam HD',62,70,858,2.2,'HIGH',380000],
+    ['Whiteboard Marker Set',28,30,422,2.0,'MEDIUM',8900],
+    ['Coffee Mug Thermal',33,40,455,2.2,'MEDIUM',42000],
+    ['Wireless Mouse',342,200,1120,9.2,'MEDIUM',0],
+    ['USB-C Hub',215,150,1004,6.4,'MEDIUM',0],
+    ['Monitor Stand',421,100,950,13.3,'LOW',0],
+  ],
+  modelTable:[
+    ['Wireless Mouse','ARIMA(2,1,1)',37.4,8.2,1120],
+    ['Mechanical Keyboard','ARIMA(2,1,1)',25.1,7.1,752],
+    ['USB-C Hub','ARIMA(2,1,1)',33.5,7.8,1004],
+    ['Monitor Stand','ARIMA(2,1,1)',31.7,8.0,950],
+    ['Laptop Cooling Pad','ARIMA(2,1,1)',23.0,6.9,691],
+    ['Ergonomic Chair','ARIMA(2,1,1)',25.5,7.3,765],
+    ['Desk Lamp LED','ARIMA(2,1,1)',19.3,6.5,578],
+    ['Webcam HD','ARIMA(2,1,1)',28.6,7.6,858],
+    ['Noise Cancelling Headphones','ARIMA(2,1,1)',24.9,7.2,748],
+    ['Portable SSD 1TB','ARIMA(2,1,1)',30.0,7.9,900],
+    ['Whiteboard Marker Set','ARIMA(2,1,1)',14.1,5.8,422],
+    ['A4 Paper Ream','ARIMA(2,1,1)',26.4,6.1,792],
+    ['Stapler Heavy Duty','ARIMA(2,1,1)',23.1,6.3,693],
+    ['Coffee Mug Thermal','ARIMA(2,1,1)',15.2,5.5,455],
+    ['Standing Desk Converter','ARIMA(2,1,1)',24.9,7.1,746],
+  ]
+};
+
+function showPanel(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+const fmt = v => '₹'+Math.round(v/100000)+'L';
+const fmtC = v => '₹'+v.toLocaleString('en-IN');
+
+function mk(id,type,data,opts){
+  const ctx=document.getElementById(id);
+  if(!ctx)return;
+  new Chart(ctx,{type,data,options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},...opts}});
+}
+
+window.addEventListener('load',()=>{
+  mk('c-rev','bar',{
+    labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    datasets:[
+      {label:'2023',data:D.rev2023,backgroundColor:'#185FA5',borderRadius:3,barPercentage:.4},
+      {label:'2024',data:D.rev2024,backgroundColor:'#1D9E75',borderRadius:3,barPercentage:.4}
+    ]
+  },{scales:{y:{ticks:{callback:v=>'₹'+Math.round(v/1000000)+'M'},grid:{color:'rgba(128,128,128,.1)'}},x:{grid:{display:false},ticks:{autoSkip:false,maxRotation:0,font:{size:11}}}}});
+
+  mk('c-cat','doughnut',{
+    labels:D.catLabels,
+    datasets:[{data:D.catVals,backgroundColor:['#185FA5','#1D9E75','#BA7517','#D85A30','#7F77DD'],borderWidth:2,borderColor:'var(--color-background-primary)'}]
+  },{plugins:{legend:{display:true,position:'right',labels:{font:{size:11},boxWidth:10,padding:10}}}});
+
+  mk('c-seas','bar',{
+    labels:D.seasLabels,
+    datasets:[{label:'Units',data:D.seasVals,backgroundColor:['#E9A227','#1D9E75','#185FA5','#D85A30'],borderRadius:4}]
+  },{scales:{y:{grid:{color:'rgba(128,128,128,.1)'}},x:{grid:{display:false}}}});
+
+  mk('c-f30','bar',{
+    labels:D.items.map(n=>n.length>18?n.substring(0,16)+'…':n),
+    datasets:[
+      {label:'Forecast',data:D.forecast30,backgroundColor:'#185FA5',borderRadius:3,barPercentage:.6},
+      {label:'Upper',data:D.forecast30.map(v=>Math.round(v*0.2)),backgroundColor:'#B5D4F4',borderRadius:3,barPercentage:.6}
+    ]
+  },{indexAxis:'y',scales:{x:{stacked:true,grid:{color:'rgba(128,128,128,.1)'}},y:{grid:{display:false},ticks:{font:{size:10}}}}});
+
+  const histMonths=D.months;
+  const hist2023=[620,530,720,740,800,850,890,940,1020,980,1350,1700];
+  const hist2024=[680,580,790,810,880,935,980,1035,1120,1080,1490,1870];
+  mk('c-hist','line',{
+    labels:histMonths,
+    datasets:[
+      {label:'2023 Total Qty',data:[...hist2023,...Array(12).fill(null)],borderColor:'#185FA5',borderWidth:2,pointRadius:2,tension:.3,fill:false},
+      {label:'2024 Total Qty',data:[...Array(12).fill(null),...hist2024],borderColor:'#1D9E75',borderWidth:2,pointRadius:2,tension:.3,fill:false},
+      {label:'Forecast',data:[...Array(23).fill(null),1870,...[1950,2050,2100].slice(0,1)],borderColor:'#D85A30',borderWidth:2,borderDash:[5,4],pointRadius:3,tension:.3,fill:false},
+    ]
+  },{scales:{y:{grid:{color:'rgba(128,128,128,.1)'}},x:{ticks:{autoSkip:true,maxTicksLimit:12,font:{size:10}},grid:{display:false}}}});
+
+  mk('c-stock','doughnut',{
+    labels:['Optimal','Low Stock','Overstocked'],
+    datasets:[{data:[7,5,3],backgroundColor:['#1D9E75','#EF9F27','#378ADD'],borderWidth:2,borderColor:'var(--color-background-primary)'}]
+  },{plugins:{legend:{display:true,position:'right',labels:{font:{size:11},boxWidth:10}}}});
+
+  mk('c-abc','doughnut',{
+    labels:['A — High Value','B — Medium','C — Low Value'],
+    datasets:[{data:[6,6,3],backgroundColor:['#185FA5','#1D9E75','#888780'],borderWidth:2,borderColor:'var(--color-background-primary)'}]
+  },{plugins:{legend:{display:true,position:'right',labels:{font:{size:11},boxWidth:10}}}});
+
+  const itemShort=D.items.map(n=>n.length>16?n.substring(0,14)+'…':n);
+  mk('c-rmse','bar',{
+    labels:itemShort,
+    datasets:[{label:'RMSE',data:D.rmse,backgroundColor:D.rmse.map(v=>v>8?'#E24B4A':v>7?'#EF9F27':'#1D9E75'),borderRadius:3,barPercentage:.55}]
+  },{scales:{y:{min:4,grid:{color:'rgba(128,128,128,.1)'},ticks:{font:{size:11}}},x:{grid:{display:false},ticks:{font:{size:9},maxRotation:40}}}});
+
+  const urgClass={'HIGH':'high','MEDIUM':'medium','LOW':'low','CRITICAL':'critical'};
+  const invBody=document.getElementById('inv-tbody');
+  D.invTable.forEach(r=>{
+    const status=r[3].toLowerCase().replace(' ','-').replace('out of stock','out');
+    const abc=r[6].toLowerCase();
+    invBody.innerHTML+=`<tr><td><b style="font-weight:500">${r[0]}</b></td><td style="color:var(--color-text-secondary)">${r[1]}</td><td>${r[2]}</td><td><span class="badge ${status}">${r[3]}</span></td><td>₹${r[4].toLocaleString('en-IN')}</td><td>${r[5]}%</td><td><span class="badge ${abc}">${r[6]}</span></td></tr>`;
+  });
+
+  const rBody=document.getElementById('reorder-tbody');
+  D.reorderTable.forEach(r=>{
+    const u=r[5].toLowerCase();
+    rBody.innerHTML+=`<tr><td><b style="font-weight:500">${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td><span class="badge ${u}">${r[5]}</span></td><td>${r[6]>0?'₹'+r[6].toLocaleString('en-IN'):'—'}</td></tr>`;
+  });
+
+  const mBody=document.getElementById('model-tbody');
+  D.modelTable.forEach(r=>{
+    mBody.innerHTML+=`<tr><td><b style="font-weight:500">${r[0]}</b></td><td style="color:var(--color-text-secondary)">${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td><b style="font-weight:500;color:#185FA5">${r[4]}</b></td></tr>`;
+  });
+});
+</script>
